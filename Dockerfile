@@ -8,15 +8,15 @@ COPY go.mod ./
 
 COPY *.go ./
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /service
+RUN go mod tidy
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o /build_res
 
 FROM gcr.io/distroless/base-debian11 AS build-release-stage
 
 WORKDIR /app
 
-COPY --from=build-stage /service /service
-
-EXPOSE 8080
+COPY --from=build-stage /build_res /service
 
 USER nonroot:nonroot
 
