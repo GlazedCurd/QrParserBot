@@ -72,26 +72,30 @@ func main() {
 			fmt.Println("Photo is nil")
 			return nil
 		}
+
 		photoReader, err := b.File(&c.Message().Photo.File)
 		if err != nil {
 			fmt.Printf("Error on getting image %s \n", err)
+			return nil
 		}
+
 		img, _, err := image.Decode(photoReader)
 		if err != nil {
 			fmt.Printf("Error on decoding %s \n", err)
 			return nil
 		}
+
 		bmp, err := gozxing.NewBinaryBitmapFromImage(img)
 		if err != nil {
-			log.Fatalf("Failed to make bitmap %s", err)
+			fmt.Printf("Failed to make bitmap %s", err)
+			return nil
 		}
 
-		// decode image
 		qrReader := qrcode.NewQRCodeReader()
 		result, err := qrReader.Decode(bmp, nil)
-
 		if err != nil {
-			log.Fatalf("Failed to decode qr %s", err)
+			fmt.Printf("Failed to decode qr %s", err)
+			return nil
 		}
 		return c.Send(result.GetText())
 	})
