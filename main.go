@@ -70,32 +70,32 @@ func main() {
 	b.Handle(tele.OnPhoto, func(c tele.Context) error {
 		if c.Message().Photo == nil {
 			fmt.Println("Photo is nil")
-			return nil
+			return c.Send("No photo")
 		}
 
 		photoReader, err := b.File(&c.Message().Photo.File)
 		if err != nil {
 			fmt.Printf("Error on getting image %s \n", err)
-			return nil
+			return c.Send("No image in message, please add message")
 		}
 
 		img, _, err := image.Decode(photoReader)
 		if err != nil {
 			fmt.Printf("Error on decoding %s \n", err)
-			return nil
+			return c.Send("Unsupported image type")
 		}
 
 		bmp, err := gozxing.NewBinaryBitmapFromImage(img)
 		if err != nil {
 			fmt.Printf("Failed to make bitmap %s", err)
-			return nil
+			return c.Send("Unsupported image type ")
 		}
 
 		qrReader := qrcode.NewQRCodeReader()
 		result, err := qrReader.Decode(bmp, nil)
 		if err != nil {
 			fmt.Printf("Failed to decode qr %s", err)
-			return nil
+			return c.Send("Failed to decode qr code")
 		}
 		return c.Send(result.GetText())
 	})
